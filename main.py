@@ -146,7 +146,7 @@ class MainHandler(webapp2.RequestHandler):
 
     def valid_email(self, email):
         email_re = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
-        return not email or email_re.match(email)
+        return email_re.match(email)
 
 
     def get(self):
@@ -161,47 +161,39 @@ class MainHandler(webapp2.RequestHandler):
 
         password = self.request.get("password")
         password_is_valid = self.valid_password(password)
-        password_error = "That wasn't a valid password."
+        password_error = ""
 
         verify = self.request.get("verify")
-        verify_error = "Your passwords didn't match."
+        verify_error = ""
 
         email = self.request.get("email")
         email_is_valid = self.valid_email(email)
-        email_error = "That's not a valid email."
+        email_error = ""
 
-        have_error = True
-
-        #while have_error:
+        username_error =""
+        have_error = False
 
         if not username_is_valid: #and valid_password(self, password) and password != verify and valid_email(self, email)):
             username_error ="That's not a valid username."
             have_error = True
-                #if not username_is_valid:
-                #username_error = "That's not a valid username."
-            self.write_form(username = username, username_error= username_error)
 
-
-        elif not valid_password(self, password):
+        if not password_is_valid:
             password_error = "That wasn't a valid password."
             have_error = True
-            self.write_form(username = username, password_error= password_error)
 
-        elif password != verify:
+        if password != verify:
             verify_error = "Your passwords didn't match."
             have_error = True
-            self.write_form(username = username, verify_error= verify_error)
 
-        elif not valid_email(self, email):
+        if email and email_is_valid:
             email_error = "That's not a valid email."
             have_error = True
+
+        if have_error:
             self.write_form(username = username, email = email, username_error = username_error,
                             password_error = password_error,verify_error = verify_error,
                             email_error = email_error)
         else:
-            have_error = False
-            #break
-
             self.redirect('/welcome?username=%s' % username)
             return
 
